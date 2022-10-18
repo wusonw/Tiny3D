@@ -11,7 +11,7 @@ const copy = () => (m: number[]) => m.map((v) => v);
 const identity = () => create().map((_, index) => Number(index % 5 === 0));
 
 /* 矩阵转置 */
-export const transpose = (m: number[]) => {
+const transpose = (m: number[]) => {
   [m[1], m[4]] = [m[4], m[1]];
   [m[2], m[8]] = [m[8], m[2]];
   [m[3], m[12]] = [m[12], m[3]];
@@ -22,7 +22,7 @@ export const transpose = (m: number[]) => {
 };
 
 /* 矩阵求逆 */
-export const inverse = (m: number[]) => {
+const inverse = (m: number[]) => {
   const DetA = detVal4(m);
   return m.map((v, i) => {
     const sign = (-1) ** (Math.floor(i / 4) + (i % 4));
@@ -77,4 +77,15 @@ const partDetVal = (m4: number[], index: number) => {
     (_, i) => Math.floor(i / 4) !== Math.floor(index / 4) && i % 4 !== index % 4
   );
   return detVal3(A);
+};
+
+/* 导出为矩阵计算库 */
+export const m4 = {
+  create,
+  negate,
+  copy,
+  identity,
+  transpose,
+  inverse,
+  multiply,
 };

@@ -1,3 +1,5 @@
+import { m4 } from "./math";
+import { Matrix3D } from "./matrix";
 import { createProgram } from "./program";
 import {
   createShader,
@@ -5,106 +7,98 @@ import {
   VERTEX_SHADER_SOURCE,
 } from "./shader";
 
+type ComputeMatrixOption = {
+  translation?: [number, number, number];
+  scale?: [number, number, number];
+  rotate?: [number, number, number];
+};
+
 export class Tiny3D {
   private gl: WebGL2RenderingContext;
+  private program: WebGLProgram;
+  private pointsData: number[];
 
   constructor(canvas: HTMLCanvasElement) {
-    this.gl = canvas.getContext("webgl2") || new WebGL2RenderingContext();
-    this.init(this.gl);
-  }
+    const gl = canvas.getContext("webgl2");
+    if (!gl) throw new Error(`Could not get GL`);
 
-  private init(gl: WebGL2RenderingContext) {
-    const vertexShader = createShader(
-      gl,
-      gl.VERTEX_SHADER,
-      VERTEX_SHADER_SOURCE
-    );
-    const fragmentShader = createShader(
-      gl,
-      gl.FRAGMENT_SHADER,
-      FRAMENT_SHADER_SOURCE
-    );
-    const program = createProgram(gl, vertexShader, fragmentShader);
-    const uniforms = getUniformLoc(gl, program);
-    const attribs = getAttribLoc(gl, program);
-
-    const positionBuffer = gl.createBuffer();
-    const normalBuffer = gl.createBuffer();
-    const texcoordBuffer = gl.createBuffer();
-
+    this.gl = gl;
+    this.program = getProgram(gl);
+    this.pointsData = [];
     const vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
-    // 设置所有的缓冲和属性
-    const configs = [
-      {
-        attrib: attribs["a_positionLoc"],
-        buffer: positionBuffer,
-        numComponents: 3,
-      },
-      {
-        attrib: attribs["a_normalLoc"],
-        buffer: normalBuffer,
-        numComponents: 3,
-      },
-      {
-        attrib: attribs["a_texcoordLoc"],
-        buffer: texcoordBuffer,
-        numComponents: 2,
-      },
-    ];
-    setAttribs(gl, configs);
+    this.setGeometry([]);
+    this.setMatrix();
+    this.drawScene();
+  }
 
-    // 绘制时
+  setGeometry(data: number[]) {
+    const gl = this.gl;
+    this.pointsData = data;
+    const positionLocation = gl.getAttribLocation(this.program, "a_position");
+    const positionBuffer = gl.createBuffer();
+    gl.enableVertexAttribArray(positionLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+    gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+    this.drawScene();
+  }
+
+  setMatrix(options?: ComputeMatrixOption) {
+    const gl = this.gl;
+    let matrix = Matrix3D.projection(gl.canvas.width, gl.canvas.height, 400);
+    matrix = m4.multiply(matrix, computeMatrix(options));
+
+    const matrixLocation = gl.getUniformLocation(this.program, "u_matrix");
+    gl.uniformMatrix4fv(matrixLocation, false, matrix);
+    this.drawScene();
+  }
+
+  drawScene() {
+    const gl = this.gl;
+    const program = this.program;
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+
     gl.useProgram(program);
-    gl.bindVertexArray(vao);
+
+    gl.drawArrays(gl.TRIANGLES, 0, this.pointsData.length / 3);
   }
 }
 
-const getUniformLoc = (gl: WebGL2RenderingContext, program: WebGLProgram) => {
-  const uniformNames = [
-    "worldViewProjection",
-    "lightWorldPos",
-    "world",
-    "viewInverse",
-    "ambient",
-    "diffuse",
-    "specular",
-    "shininess",
-    "specularFactor",
+const computeMatrix = (options?: ComputeMatrixOption) => {
+  const defaultOptions = {
+    translation: [0, 0, 0],
+    scale: [1, 1, 1],
+    rotate: [0, 0, 0],
+  };
+
+  const matrixOptions = Object.assign(defaultOptions, options);
+  const { translation, scale, rotate } = matrixOptions;
+  const matrixs = [
+    Matrix3D.translation(translation[0], translation[1], translation[2]),
+    Matrix3D.scale(scale[0], scale[1], scale[2]),
+    Matrix3D.xRotation(rotate[0]),
+    Matrix3D.yRotation(rotate[1]),
+    Matrix3D.zRotation(rotate[2]),
   ];
-  const uniformEntries = uniformNames.map((name) => [
-    `u_${name}Loc`,
-    gl.getUniformLocation(program, `u_${name}`),
-  ]);
-
-  return Object.fromEntries(uniformEntries);
+  let matrix = m4.identity();
+  matrixs.forEach((m) => (matrix = m4.multiply(matrix, m)));
+  return matrix;
 };
 
-const getAttribLoc = (gl: WebGL2RenderingContext, program: WebGLProgram) => {
-  const attrNames = ["position", "normal", "texcoord"];
-  const attribEntries = attrNames.map((name) => [
-    `a_${name}Loc`,
-    gl.getAttribLocation(program, `a_${name}`),
-  ]);
-
-  return Object.fromEntries(attribEntries);
-};
-
-const setAttribs = (
-  gl: WebGL2RenderingContext,
-  configs: { attrib: any; buffer: WebGLBuffer | null; numComponents: number }[]
-) => {
-  for (const config of configs) {
-    if (!config.buffer) return;
-    gl.bindBuffer(gl.ARRAY_BUFFER, config.buffer);
-    gl.enableVertexAttribArray(config.attrib);
-    gl.vertexAttribPointer(
-      config.attrib,
-      config.numComponents,
-      gl.FLOAT,
-      false,
-      0,
-      0
-    );
-  }
+const getProgram = (gl: WebGL2RenderingContext) => {
+  const vertexShader = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER_SOURCE);
+  const fragmentShader = createShader(
+    gl,
+    gl.FRAGMENT_SHADER,
+    FRAMENT_SHADER_SOURCE
+  );
+  const program = createProgram(gl, vertexShader, fragmentShader);
+  return program;
 };
