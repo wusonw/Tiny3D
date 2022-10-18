@@ -1,0 +1,20 @@
+{
+  "name": "tiny-3d",
+  "version": "0.0.1",
+  "description": "",
+  "main": "main.ts",
+  "scripts": {
+    "dev": "node main.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WangWuzhen626/Tiny3D.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WangWuzhen626/Tiny3D/issues"
+  },
+  "homepage": "https://github.com/WangWuzhen626/Tiny3D#readme"
+}
