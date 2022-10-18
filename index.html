@@ -8,8 +8,12 @@
   </head>
   <body>
     <canvas id="canvas"></canvas>
-
+    <script src="./lib/index.js"></script>
     <script>
+      console.log(new Tiny3D());
+    </script>
+
+    <!-- <script>
       // 创建canvas元素并获取上下文
       const canvas = document.querySelector("#canvas");
       const gl = canvas.getContext("webgl2");
@@ -124,6 +128,6 @@
       gl.bindVertexArray(vao);
 
       gl.drawArrays(gl.TRIANGLES, 0, 3);
-    </script>
+    </script> -->
   </body>
 </html>
