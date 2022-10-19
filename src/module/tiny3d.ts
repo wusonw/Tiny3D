@@ -25,25 +25,19 @@ export class Tiny3D {
     private program: WebGLProgram;
     private geometry: number[];
 
-    constructor() {
-        this.gl = new WebGL2RenderingContext();
-        this.program = new WebGLProgram();
-        this.geometry = [];
-    }
-
-    init(canvas: HTMLCanvasElement) {
-        //获取gl对象
-        const gl = canvas.getContext("webgl2");
+    constructor(canvasDom?:HTMLCanvasElement) {
+        canvasDom = canvasDom || document.createElement('canvas')
+        const gl = canvasDom.getContext("webgl2");
         if (!gl) throw new Error(`Could not get GL`);
-        this.gl = gl;
-        //获取程序对象
-        this.program = getProgram(gl);
 
+        this.gl = gl;
+        this.program = getProgram(gl);
+        this.geometry = [];
         this.setGeometry();
         this.setMatrix();
         this.drawScene();
     }
-
+    
     /* 设置几何坐标 */
     setGeometry(geometry: number[] = []) {
         const gl = this.gl;

@@ -2,13 +2,13 @@
 export const VERTEX_SHADER_SOURCE = `#version 300 es
 
   in vec4 a_position;
-  in vec4 a_color;
+//   in vec4 a_color;
   
   uniform mat4 u_matrix;
  
   void main() {
     gl_Position = u_matrix * a_position;
-    v_color = a_color;
+//     v_color = a_color;
   }
   `;
 
@@ -17,12 +17,12 @@ export const FRAMENT_SHADER_SOURCE = `#version 300 es
 
   precision highp float;
 
-  in vec4 v_color;
+//   in vec4 v_color;
 
-  out vec4 outColor;
+//   out vec4 outColor;
 
   void main() {
-    outColor = v_color;
+//     outColor = v_color;
   }
   `;
 
