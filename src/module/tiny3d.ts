@@ -18,7 +18,13 @@ export class Tiny3D {
   private program: WebGLProgram;
   private pointsData: number[];
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor() {
+    this.gl = new WebGL2RenderingContext();
+    this.program = new WebGLProgram();
+    this.pointsData = [];
+  }
+
+  init(canvas: HTMLCanvasElement) {
     const gl = canvas.getContext("webgl2");
     if (!gl) throw new Error(`Could not get GL`);
 

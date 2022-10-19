@@ -1,4 +1,5 @@
 import { Tiny3D } from "./module/tiny3d";
 
-export default Tiny3D;
-export { Tiny3D };
+const tiny3 = new Tiny3D();
+
+export default tiny3;
