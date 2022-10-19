@@ -78,6 +78,28 @@ const partDetVal = (m4: number[], index: number) => {
   );
   return detVal3(A);
 };
+/* 一维向量叉乘 */
+const cross = (vec1: number[], vec2: number[]) => [
+  vec1[1] * vec2[2] - vec2[1] * vec1[2],
+  vec2[0] * vec1[2] - vec1[0] * vec2[2],
+  vec1[0] * vec2[1] - vec2[0] * vec1[1],
+];
+
+const subtract = (vec1: number[], vec2: number[]) => [
+  vec1[0] - vec2[0],
+  vec1[1] - vec2[1],
+  vec1[2] - vec2[2],
+];
+
+const normalize = (v: number[]) => {
+  const length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+  // 确定不会除以 0
+  if (length > 0.00001) {
+    return [v[0] / length, v[1] / length, v[2] / length];
+  } else {
+    return [0, 0, 0];
+  }
+};
 
 /* 导出为矩阵计算库 */
 export const m4 = {
@@ -88,4 +110,10 @@ export const m4 = {
   transpose,
   inverse,
   multiply,
+};
+
+export const v3 = {
+  cross,
+  subtract,
+  normalize,
 };
