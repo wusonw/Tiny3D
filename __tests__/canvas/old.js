@@ -1,21 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Tiny 3D</title>
-</head>
-<body>
-<canvas id="canvas"></canvas>
-<script src="../../dist/bundle.js"></script>
-<script>
-const canvasDom = document.getElementById('canvas')
-console.log(new Tiny3D(canvasDom))
-</script>
-
-
-<!-- <script>
   // 创建canvas元素并获取上下文
   const canvas = document.querySelector("#canvas");
   const gl = canvas.getContext("webgl2");
@@ -90,7 +72,7 @@ console.log(new Tiny3D(canvasDom))
 
   // 向缓冲区设置数据
   //gl.STATIC_DRAW 告诉WebGL我们不太可能去改变数据的值。
-  const positions = [0, 0, 0, 0.5, 0.7, 0, 0, -1, 0, 5];
+  const positions = [0, 0, 0, 0.5, 0.7, 0, 0, -1, 0];
   gl.bufferData(
     gl.ARRAY_BUFFER,
     new Float32Array(positions),
@@ -127,9 +109,6 @@ console.log(new Tiny3D(canvasDom))
   //接下来我们需要告诉WebGL运行着色器程序
   gl.useProgram(program);
   //   // 然后我们需要告诉它用哪个缓冲区和如何从缓冲区取出数据给到属性
-  gl.bindVertexArray(vao);
+//   gl.bindVertexArray(vao);
 
   gl.drawArrays(gl.TRIANGLES, 0, 3);
-</script> -->
-</body>
-</html>

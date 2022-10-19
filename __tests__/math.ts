@@ -1,4 +1,4 @@
-import { m4, v3 } from "../../module/math";
+import { m4, v3 } from "../src/module/math";
 
 test("矩阵转置 transpose", () => {
   const r = m4
