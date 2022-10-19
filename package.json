@@ -2,7 +2,7 @@
   "name": "tiny-3d",
   "version": "0.0.1",
   "description": "",
-  "main": "",
+  "main": "/src/index.ts",
   "type": "module",
   "scripts": {
     "test": "jest --config jestconfig.json",
