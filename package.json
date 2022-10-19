@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "main": "index.ts",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "test": "jest --config jest.config.json",
     "build": "webpack"

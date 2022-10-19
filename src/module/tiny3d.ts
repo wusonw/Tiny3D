@@ -25,7 +25,7 @@ export class Tiny3D {
     private program: WebGLProgram;
     private geometry: number[];
 
-    constructor(canvasDom?:HTMLCanvasElement) {
+    constructor(canvasDom?: HTMLCanvasElement) {
         canvasDom = canvasDom || document.createElement('canvas')
         const gl = canvasDom.getContext("webgl2");
         if (!gl) throw new Error(`Could not get GL`);
@@ -37,7 +37,7 @@ export class Tiny3D {
         this.setMatrix();
         this.drawScene();
     }
-    
+
     /* 设置几何坐标 */
     setGeometry(geometry: number[] = []) {
         const gl = this.gl;
@@ -63,7 +63,7 @@ export class Tiny3D {
         const gl = this.gl;
         // 计算矩阵
         const perspectiveMatrix = computePerspectiveMatrix()
-        const viewMatrix = computeViewMatrix([0, 0, 0], [100, 0, 0])
+        const viewMatrix = computeViewMatrix([0, 0, 0], [100, 0, 0], [0, 1, 0])
         const modelTransformationMatrix = computeModelTransformationMatrix()
         const uMatrix = m4.multiply(m4.multiply(perspectiveMatrix, viewMatrix), modelTransformationMatrix)
         // 获取并设置矩阵
@@ -141,8 +141,8 @@ const computePerspectiveMatrix = (options?: PerspectiveMatrixOption) => {
     return Matrix3D.perspective(viewAngle, aspect, near, far);
 };
 /* 视图矩阵 */
-const computeViewMatrix = (cameraPosition: number[], targetPosition: number[]) => {
-    const matrix = Matrix3D.lookAt(cameraPosition, targetPosition)
+const computeViewMatrix = (cameraPosition: number[], targetPosition: number[], up: number[]) => {
+    const matrix = Matrix3D.lookAt(cameraPosition, targetPosition, up)
     return m4.inverse(matrix)
 }
 
@@ -153,6 +153,5 @@ const getProgram = (gl: WebGL2RenderingContext) => {
         gl.FRAGMENT_SHADER,
         FRAMENT_SHADER_SOURCE
     );
-    const program = createProgram(gl, vertexShader, fragmentShader);
-    return program;
+    return createProgram(gl, vertexShader, fragmentShader);
 };

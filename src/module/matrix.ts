@@ -71,10 +71,10 @@ export const Matrix3D = {
         ];
     },
     /* 视图矩阵 */
-    lookAt: function (cameraPosition: number[], target: number[]) {
+    lookAt: function (cameraPosition: number[], target: number[], up: number[]) {
         const zAxis = v3.normalize(
             v3.subtract(cameraPosition, target));
-        const xAxis = v3.normalize(v3.cross([0,1,0], zAxis));
+        const xAxis = v3.normalize(v3.cross(up, zAxis));
         const yAxis = v3.normalize(v3.cross(zAxis, xAxis));
 
         return [
