@@ -66,7 +66,7 @@ export class Tiny3D {
     gl.bindVertexArray(vao);
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-    this.drawScene();
+    // this.drawScene();
   }
 
   /* 设置转换矩阵 */
@@ -84,7 +84,7 @@ export class Tiny3D {
     // 获取并设置矩阵
     const matrixLocation = gl.getUniformLocation(this.program, "u_matrix");
     gl.uniformMatrix4fv(matrixLocation, false, uMatrix);
-    this.drawScene();
+    // this.drawScene();
   }
 
   setLight() {
@@ -133,7 +133,7 @@ const computeModelTransformationMatrix = (
 /* 透视矩阵 */
 const computePerspectiveMatrix = (options?: PerspectiveMatrixOption) => {
   const defaultOptions = {
-    viewAngle: 75,
+    viewAngle: 80,
     aspect: 1,
     near: 1,
     far: 2000,
