@@ -1,6 +1,7 @@
 // rollup.config.js
 import serve from "rollup-plugin-serve";
 import livereload from "rollup-plugin-livereload";
+import typescript from "@rollup/plugin-typescript";
 
 export default [
   {
@@ -10,6 +11,7 @@ export default [
       format: "es",
     },
     plugins: [
+      typescript(),
       // 热更新 默认监听根文件夹
       livereload(),
       // 本地服务器

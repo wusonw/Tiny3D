@@ -74,7 +74,7 @@ export class Tiny3D {
     const gl = this.gl;
     // 计算矩阵
     const perspectiveMatrix = computePerspectiveMatrix();
-    const viewMatrix = computeViewMatrix([100, 100, 100], [0, 0, 0], [0, 1, 0]);
+    const viewMatrix = computeViewMatrix([0, 0, 0], [0, 0, 0], [0, 1, 0]);
     const modelTransformationMatrix = computeModelTransformationMatrix();
     // const uMatrix = mat4.multiply(
     //   mat4.multiply(perspectiveMatrix, viewMatrix),
