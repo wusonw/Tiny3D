@@ -4,11 +4,11 @@ export const VERTEX_SHADER_SOURCE = `#version 300 es
   in vec4 a_position;
   // in vec4 a_color;
   
-  // uniform mat4 u_matrix;
+  uniform mat4 u_matrix;
  
   void main() {
-    // gl_Position = u_matrix * a_position;
-    gl_Position = a_position;
+    gl_Position = u_matrix * a_position;
+    // gl_Position = a_position;
     // v_color = a_color;
     // v_color = vec4 (1.0,0.0,0.0,1.0);
   }

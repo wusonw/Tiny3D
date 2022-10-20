@@ -102,7 +102,7 @@ const normalize = (v: number[]) => {
 };
 
 /* 导出为矩阵计算库 */
-export const m4 = {
+export const mat4 = {
   create,
   negate,
   copy,
@@ -112,7 +112,7 @@ export const m4 = {
   multiply,
 };
 
-export const v3 = {
+export const vec3 = {
   cross,
   subtract,
   normalize,

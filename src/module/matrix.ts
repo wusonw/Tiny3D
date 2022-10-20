@@ -1,28 +1,27 @@
-import { v3 } from "./math";
-
+import { vec3 } from "./math";
 const { cos, sin, PI, tan } = Math;
 
 /* 针对视图操作的矩阵 */
 export const Matrix3D = {
   /* 平移 */
   translation: function (tx: number, ty: number, tz: number) {
-    return [1, 0, 0, tx, 0, 1, 0, ty, 0, 0, 1, tz, 0, 0, 0, 1];
+    return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tx, ty, tz, 1];
   },
   /* 旋转 */
   xRotation: function (angle: number) {
     const c = cos((angle * PI) / 180);
     const s = sin((angle * PI) / 180);
-    return [1, 0, 0, 0, 0, c, -s, 0, 0, s, c, 0, 0, 0, 0, 1];
+    return [1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1];
   },
   yRotation: function (angle: number) {
     const c = cos((angle * PI) / 180);
     const s = sin((angle * PI) / 180);
-    return [c, 0, s, 0, 0, 1, 0, 0, -s, 0, c, 0, 0, 0, 0, 1];
+    return [c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1];
   },
   zRotation: function (angle: number) {
     const c = cos((angle * PI) / 180);
     const s = sin((angle * PI) / 180);
-    return [c, -s, 0, 0, s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+    return [c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   },
   /* 缩放 */
   scale: function (sx: number, sy: number, sz: number) {
@@ -50,36 +49,19 @@ export const Matrix3D = {
       0,
       0,
       (near + far) * rangeInv,
-      near * far * rangeInv * 2,
-      0,
-      0,
       -1,
+      0,
+      0,
+      near * far * rangeInv * 2,
       0,
     ];
   },
   /* 视图矩阵 */
   lookAt: function (cameraPosition: number[], target: number[], up: number[]) {
-    const zAxis = v3.normalize(v3.subtract(cameraPosition, target));
-    const xAxis = v3.normalize(v3.cross(up, zAxis));
-    const yAxis = v3.normalize(v3.cross(zAxis, xAxis));
+    const zAxis = vec3.normalize(vec3.subtract(cameraPosition, target));
+    const xAxis = vec3.normalize(vec3.cross(up, zAxis));
+    const yAxis = vec3.normalize(vec3.cross(zAxis, xAxis));
 
-    return [
-      xAxis[0],
-      xAxis[1],
-      xAxis[2],
-      0,
-      yAxis[0],
-      yAxis[1],
-      yAxis[2],
-      0,
-      zAxis[0],
-      zAxis[1],
-      zAxis[2],
-      0,
-      cameraPosition[0],
-      cameraPosition[1],
-      cameraPosition[2],
-      1,
-    ];
+    return [...xAxis, 0, ...yAxis, 0, ...zAxis, 0, ...cameraPosition, 1];
   },
 };
