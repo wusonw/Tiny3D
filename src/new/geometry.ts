@@ -17,22 +17,27 @@ export class Geometry {
 
   setMash(mesh: Mesh) {
     this.mesh = mesh;
+    return this;
   }
 
   setColor(r: number, g: number, b: number, a: number = 1) {
     this.color = [r, g, b, a];
+    return this;
   }
 
   translate(tx: number = 0, ty: number = 0, tz: number = 0) {
     this.transform.translate = [tx, ty, tz];
+    return this;
   }
 
   rotate(rx: number = 0, ry: number = 0, rz: number = 0) {
     this.transform.rotate = [rx, ry, rz];
+    return this;
   }
 
   scale(sx: number = 1, sy: number = 1, sz: number = 1) {
     this.transform.scale = [sx, sy, sz];
+    return this;
   }
 }
 

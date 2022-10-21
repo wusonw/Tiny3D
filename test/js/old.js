@@ -1,5 +1,7 @@
 // 创建canvas元素并获取上下文
 const canvas = document.querySelector("#canvas");
+canvas.width = 500;
+canvas.height = 500;
 const gl = canvas.getContext("webgl2");
 if (!gl) console.error(`WebGL is not aviable`);
 
@@ -58,16 +60,6 @@ const program = createProgram(gl, vertexShader, fragmentShader);
 
 // 在GPU上已经创建了一个GLSL程序后，我们还需要提供数据给它
 const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-
-// 创建 绑定 缓冲区
-const positionBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-// 向缓冲区设置数据
-//gl.STATIC_DRAW 告诉WebGL我们不太可能去改变数据的值。
-const positions = [0, 0, 0, 0.5, 0.7, 0, 0, -1, 0];
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
 //数据存放到缓存区后，接下来需要告诉属性如何从缓冲区取出数据
 //首先，我需要创建属性状态集合：顶点数组对象(Vertex Array Object)
 const vao = gl.createVertexArray();
@@ -75,8 +67,20 @@ const vao = gl.createVertexArray();
 gl.bindVertexArray(vao);
 //然后，我们还需要启用属性。如果没有开启这个属性，这个属性值会是一个常量
 gl.enableVertexAttribArray(positionAttributeLocation);
+// 创建 绑定 缓冲区
+const positionBuffer = gl.createBuffer();
+const indexBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
-const size = 3; // 2 components per iteration
+// 向缓冲区设置数据
+//gl.STATIC_DRAW 告诉WebGL我们不太可能去改变数据的值。
+const positions = [0, 0, 0, 0.5, 0.7, 0, 0, -1, 0, -1, 0, 1];
+const indexs = [0, 1, 2, 0, 1, 3];
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(indexs), gl.STATIC_DRAW);
+
+const size = 3; // 3 components per iteration
 const type = gl.FLOAT; // the data is 32bit floats
 const normalize = false; // don't normalize the data
 const stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
@@ -97,7 +101,7 @@ gl.vertexAttribPointer(
 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 //接下来我们需要告诉WebGL运行着色器程序
 gl.useProgram(program);
-//   // 然后我们需要告诉它用哪个缓冲区和如何从缓冲区取出数据给到属性
-//   gl.bindVertexArray(vao);
+// gl.bindVertexArray(vao);
+gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-gl.drawArrays(gl.TRIANGLES, 0, 3);
+// gl.drawElements(gl.TRANGLES, 3, gl.UNSIGNED_BYTE, 0);

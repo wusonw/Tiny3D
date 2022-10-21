@@ -22,6 +22,7 @@ export default class Tiny3D {
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
     this.program = getProgram(gl);
+    this.gl.useProgram(this.program);
     this.camera = new Camera();
     this.geometrys = [];
     this.vaoMap = new WeakMap();
@@ -29,10 +30,12 @@ export default class Tiny3D {
 
   useCamera(camera: Camera) {
     this.camera = camera;
+    return this;
   }
 
   addGeometry(geo: Geometry) {
     this.geometrys.push(geo);
+    return this;
   }
 
   draw() {
@@ -40,7 +43,7 @@ export default class Tiny3D {
       setPosition(this.gl, this.program, this.vaoMap, geo.mesh);
       const matrixs = Object.entries(computeMatrixs(geo, this.camera));
       setMatrix(this.gl, this.program, matrixs);
-      drawSence(this.gl, this.program);
+      drawSence(this.gl, this.vaoMap.get(geo.mesh));
     });
   }
 
