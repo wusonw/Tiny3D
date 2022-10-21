@@ -92,7 +92,7 @@ const subtract = (vec1: number[], vec2: number[]) => [
 ];
 
 const normalize = (v: number[]) => {
-  const length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+  const length = Math.sqrt(v[0] ** 2 + v[1] ** 2 + v[2] ** 2);
   // 确定不会除以 0
   if (length > 0.00001) {
     return [v[0] / length, v[1] / length, v[2] / length];
@@ -102,7 +102,7 @@ const normalize = (v: number[]) => {
 };
 
 /* 导出为矩阵计算库 */
-export const m4 = {
+export const mat4 = {
   create,
   negate,
   copy,
@@ -112,7 +112,7 @@ export const m4 = {
   multiply,
 };
 
-export const v3 = {
+export const vec3 = {
   cross,
   subtract,
   normalize,

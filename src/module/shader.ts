@@ -2,15 +2,15 @@
 export const VERTEX_SHADER_SOURCE = `#version 300 es
 
   in vec4 a_position;
-  // in vec4 a_color;
+  in vec3 a_normal;
   
-  // uniform mat4 u_matrix;
+  uniform mat4 u_matrix;
+
+  out vec3 v_normal;
  
   void main() {
-    // gl_Position = u_matrix * a_position;
-    gl_Position = a_position;
-    // v_color = a_color;
-    // v_color = vec4 (1.0,0.0,0.0,1.0);
+    gl_Position = u_matrix * a_position;
+    v_normal = a_normal;
   }
   `;
 
@@ -19,13 +19,18 @@ export const FRAMENT_SHADER_SOURCE = `#version 300 es
 
   precision highp float;
 
-  // in vec4 v_color;
+  in vec3 v_normal;
+
+  uniform vec3 u_lightDirection;
 
   out vec4 outColor;
 
   void main() {
-    // outColor = v_color;
-    outColor = vec4(1, 0, 0.5, 1);
+    vec3 normal = normalize(v_normal);
+    float light = dot(normal, u_lightDirection);
+
+    outColor = vec4(1, 0, 0.2, 1);
+    outColor.rgb *= light;
   }
   `;
 

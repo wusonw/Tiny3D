@@ -1,4 +1,4 @@
-import { m4 } from "./math";
+import { mat4, vec3 } from "./math";
 import { Matrix3D } from "./matrix";
 import { createProgram } from "./program";
 import {
@@ -25,8 +25,7 @@ export class Tiny3D {
   private program: WebGLProgram;
   private geometry: number[];
 
-  constructor(canvasDom?: HTMLCanvasElement) {
-    canvasDom = canvasDom || document.createElement("canvas");
+  constructor(canvasDom: HTMLCanvasElement) {
     const gl = canvasDom.getContext("webgl2");
     if (!gl) throw new Error(`Could not get GL`);
 
@@ -36,6 +35,19 @@ export class Tiny3D {
     // this.setGeometry();
     // this.setMatrix();
     // this.drawScene();
+    this.init();
+  }
+
+  /* GL配置初始化 */
+  private init(gl: WebGL2RenderingContext = this.gl) {
+    gl.useProgram(this.program);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
   }
 
   /* 设置几何坐标 */
@@ -54,55 +66,44 @@ export class Tiny3D {
     gl.bindVertexArray(vao);
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
-    this.drawScene();
+    // this.drawScene();
   }
 
   /* 设置转换矩阵 */
-  setMatrix() {
+  setMatrix(c: number[], t: number[], u: number[]) {
     const gl = this.gl;
     // 计算矩阵
     const perspectiveMatrix = computePerspectiveMatrix();
-    const viewMatrix = computeViewMatrix([0, 0, 0], [100, 0, 0], [0, 1, 0]);
+    const viewMatrix = computeViewMatrix(c, t, u);
     const modelTransformationMatrix = computeModelTransformationMatrix();
-    const uMatrix = m4.multiply(
-      m4.multiply(perspectiveMatrix, viewMatrix),
+    let uMatrix = mat4.multiply(
+      mat4.multiply(perspectiveMatrix, viewMatrix),
       modelTransformationMatrix
     );
+
     // 获取并设置矩阵
     const matrixLocation = gl.getUniformLocation(this.program, "u_matrix");
     gl.uniformMatrix4fv(matrixLocation, false, uMatrix);
+    // this.drawScene();
+  }
+
+  setLight() {
+    const lightDirectionLocation = this.gl.getUniformLocation(
+      this.program,
+      "u_lightDirection"
+    );
+
+    this.gl.uniform3fv(lightDirectionLocation, vec3.normalize([1, 1, 1]));
     this.drawScene();
   }
 
-  //   /* 设置表面法向量，用于光照 */
-  //   setNormals(normal: number[]) {
-  //     const gl = this.gl;
-  //
-  //     //创建和绑定顶点缓冲区
-  //     const normalBuffer = gl.createBuffer();
-  //     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-  //
-  //     const normalLocation = gl.getAttribLocation(this.program, "a_position");
-  //     gl.enableVertexAttribArray(normalLocation);
-  //     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normal), gl.STATIC_DRAW);
-  //     gl.vertexAttribPointer(normalLocation, 3, gl.FLOAT, false, 0, 0);
-  //     this.drawScene();
-  //   }
   /* 绘制场景 */
   drawScene() {
-    const gl = this.gl;
-    const program = this.program;
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
-    // gl.clearColor(0, 0, 0, 0);
-    // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    // gl.enable(gl.DEPTH_TEST);
-    // gl.enable(gl.CULL_FACE);
-
-    gl.useProgram(program);
-
-    gl.drawArrays(gl.TRIANGLES, 0, Math.floor(this.geometry.length / 3));
+    this.gl.drawArrays(
+      this.gl.TRIANGLES,
+      0,
+      Math.floor(this.geometry.length / 3)
+    );
   }
 }
 
@@ -125,17 +126,17 @@ const computeModelTransformationMatrix = (
     Matrix3D.yRotation(rotate[1]),
     Matrix3D.zRotation(rotate[2]),
   ];
-  let matrix = m4.identity();
-  matrixs.forEach((m) => (matrix = m4.multiply(matrix, m)));
+  let matrix = mat4.identity();
+  matrixs.forEach((m) => (matrix = mat4.multiply(matrix, m)));
   return matrix;
 };
 /* 透视矩阵 */
 const computePerspectiveMatrix = (options?: PerspectiveMatrixOption) => {
   const defaultOptions = {
-    viewAngle: 75,
+    viewAngle: 80,
     aspect: 1,
     near: 1,
-    far: 400,
+    far: 2000,
   };
 
   const matrixOptions = Object.assign(defaultOptions, options);
@@ -149,7 +150,7 @@ const computeViewMatrix = (
   up: number[]
 ) => {
   const matrix = Matrix3D.lookAt(cameraPosition, targetPosition, up);
-  return m4.inverse(matrix);
+  return mat4.inverse(matrix);
 };
 
 const getProgram = (gl: WebGL2RenderingContext) => {
