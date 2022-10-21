@@ -1,9 +1,9 @@
 import { DEFAULT_VIEWPORT } from "./camera";
 import Camera from "./camera";
-import { Vector3 } from "./type";
+import { ModelTransformOption, Vector3 } from "./type";
 
 const { atan, PI } = Math;
-const DEFAULT_MODEL_OPTION: ModelTransformOption = {
+const DEFAULT_MODEL_OPTION = {
   translate: [0, 0, 0],
   rotate: [0, 0, 0],
   scale: [1, 1, 1],
@@ -16,7 +16,7 @@ const DEFAULT_MODEL_OPTION: ModelTransformOption = {
 /* 计算模型矩阵 */
 // TODO: 这里可能有问题
 const computeModelMatrix = (transform: ModelTransformOption) => {
-  const _transform = { ...DEFAULT_MODEL_OPTION, transfom };
+  const _transform = { ...DEFAULT_MODEL_OPTION, transform };
   const [tx, ty, tz] = _transform.translate;
   const [rx, ry, rz] = _transform.rotate;
   const [sx, sy, sz] = _transform.translate;
