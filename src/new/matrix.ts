@@ -1,14 +1,32 @@
 import { DEFAULT_VIEWPORT } from "./camera";
+import Camera from "./camera";
+import { Vector3 } from "./type";
+
+const { atan, PI } = Math;
+const DEFAULT_MODEL_OPTION: ModelTransformOption = {
+  translate: [0, 0, 0],
+  rotate: [0, 0, 0],
+  scale: [1, 1, 1],
+};
+
 /*
  * NOTE: 手动计算矩阵，直接赋值，避免程序运算耗时
  */
 
-import Camera from "./camera";
-import { Vector3 } from "./type";
-const { atan } = Math;
-
 /* 计算模型矩阵 */
-const computeModelMatrix = () => {};
+// TODO: 这里可能有问题
+const computeModelMatrix = (transform: ModelTransformOption) => {
+  const _transform = { ...DEFAULT_MODEL_OPTION, transfom };
+  const [tx, ty, tz] = _transform.translate;
+  const [rx, ry, rz] = _transform.rotate;
+  const [sx, sy, sz] = _transform.translate;
+
+  const Rx = [1, 0, 0, 0];
+
+  const T = [1, 0, 0, tx, 0, 1, 0, ty, 0, 0, 1, tz, 0, 0, 0, 1];
+  const R = [];
+  const S = [sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1];
+};
 /* 计算视图矩阵 */
 const computeViewMatrix = (camera: Camera) => {
   const _camera = camera || new Camera();
@@ -110,5 +128,7 @@ const normalize = (v: Vector3): Vector3 => {
     return [0, 0, 0];
   }
 };
+
+const dToRad = (degree: number) => (PI * degree) / 180;
 
 export { computeModelMatrix, computeViewMatrix, computeProjectionMatrix };

@@ -19,3 +19,9 @@ export type CameraViewport = {
   near?: number; // 最近可视距离
   far?: number; //最远可视距离
 };
+
+export type ModelTransformOption = {
+  translate?: Vector3;
+  rotate?: Vector3;
+  scale?: Vector3;
+};
