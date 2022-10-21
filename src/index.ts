@@ -1,5 +1,5 @@
-import {Tiny3D} from "./module/tiny3d";
+import { Cylinder, Geometry } from "./new/geometry";
+import Camera from "./new/camera";
+import Tiny3D from "./new/tiny3d";
 
-export default Tiny3D
-
-
+export { Tiny3D, Camera, Geometry, Cylinder };

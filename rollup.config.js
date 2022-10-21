@@ -5,14 +5,14 @@ import typescript from "@rollup/plugin-typescript";
 
 export default [
   {
-    input: "./dist/index.js",
+    input: "src/index.ts",
     output: {
       file: "./build/bundle.js",
       format: "es",
     },
     plugins: [
       // 热更新 默认监听根文件夹
-      livereload("dist"),
+      livereload(),
       typescript({
         sourceMap: false,
       }),

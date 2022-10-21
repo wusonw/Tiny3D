@@ -1,5 +1,5 @@
+import { DEFAULT_VIEWPORT } from "./default";
 import { CameraOption, CameraViewport, Vector3 } from "./type";
-export const DEFAULT_VIEWPORT = { fov: 75, aspect: 1, near: 0.1, far: 2000 };
 
 export default class Camera {
   static PERSPECT = 0;
@@ -14,9 +14,9 @@ export default class Camera {
   constructor(option?: CameraOption) {
     this.type = option?.type || Camera.PERSPECT;
     this.position = option?.position || [0, 0, 0];
-    this.focus = option?.focus || [0, 0, -1];
+    this.focus = option?.focus || [0, 0, 1];
     this.up = option?.up || [0, 1, 0];
-    this.viewport = Object.assign(DEFAULT_VIEWPORT, option?.viewport);
+    this.viewport = { ...DEFAULT_VIEWPORT, ...option?.viewport };
   }
 
   setType(type: number) {

@@ -1,34 +1,49 @@
-import { DEFAULT_VIEWPORT } from "./camera";
+import { Geometry } from "./geometry";
+import { DEFAULT_VIEWPORT } from "./default";
 import Camera from "./camera";
-import { ModelTransformOption, Vector3 } from "./type";
+import { Matrix4, Vector3 } from "./type";
 
-const { atan, PI } = Math;
-const DEFAULT_MODEL_OPTION = {
-  translate: [0, 0, 0],
-  rotate: [0, 0, 0],
-  scale: [1, 1, 1],
+const { atan, sin, cos, PI } = Math;
+
+const computeMatrixs = (geo: Geometry, camera: Camera) => {
+  const [T, Rx, Ry, Rz, S] = computeModelMatrixs(geo);
+  const view = computeViewMatrix(camera);
+  const projection = computeProjectionMatrix(camera);
+
+  return {
+    u_model_T: T,
+    u_model_Rx: Rx,
+    u_model_Ry: Ry,
+    u_model_Rz: Rz,
+    u_model_S: S,
+    u_view: view,
+    u_projection: projection,
+  };
 };
-
-/*
- * NOTE: 手动计算矩阵，直接赋值，避免程序运算耗时
- */
 
 /* 计算模型矩阵 */
 // TODO: 这里可能有问题
-const computeModelMatrix = (transform: ModelTransformOption) => {
-  const _transform = { ...DEFAULT_MODEL_OPTION, transform };
-  const [tx, ty, tz] = _transform.translate;
-  const [rx, ry, rz] = _transform.rotate;
-  const [sx, sy, sz] = _transform.translate;
+const computeModelMatrixs = (geo: Geometry): Matrix4[] => {
+  const _transform = geo.transform;
+  const [tx, ty, tz] = _transform.translate as Vector3;
+  const [rx, ry, rz] = _transform.rotate as Vector3;
+  const [sx, sy, sz] = _transform.translate as Vector3;
+  const [radRx, radRy, radRz] = [dToRad(rx), dToRad(ry), dToRad(rz)];
+  const [cosx, sinx] = [cos(radRx), sin(radRx)];
+  const [cosy, siny] = [cos(radRy), sin(radRy)];
+  const [cosz, sinz] = [cos(radRz), sin(radRz)];
 
-  const Rx = [1, 0, 0, 0];
+  const Rx = [1, 0, 0, 0, 0, cosx, -sinx, 0, 0, sinx, cosx, 0, 0, 0, 0, 1];
+  const Ry = [cosy, 0, siny, 0, 0, 1, 0, 0, -siny, 0, cosy, 0, 0, 0, 0, 1];
+  const Rz = [cosz, 0, sinz, 0, 0, 1, 0, 0, -sinz, 0, cosz, 0, 0, 0, 0, 1];
 
   const T = [1, 0, 0, tx, 0, 1, 0, ty, 0, 0, 1, tz, 0, 0, 0, 1];
-  const R = [];
   const S = [sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1];
+
+  return [Rx, Ry, Rz, T, S] as Matrix4[];
 };
 /* 计算视图矩阵 */
-const computeViewMatrix = (camera: Camera) => {
+const computeViewMatrix = (camera: Camera): Matrix4 => {
   const _camera = camera || new Camera();
   const { position, focus, up } = _camera;
   const f = normalize(subtract(position, focus));
@@ -55,12 +70,12 @@ const computeViewMatrix = (camera: Camera) => {
   ];
 };
 /* 计算投影坐标 */
-const computeProjectionMatrix = (camera: Camera) => {
+const computeProjectionMatrix = (camera: Camera): Matrix4 => {
   const _camera = camera || new Camera();
-  const { fov, aspect, near, far } = Object.assign(
-    DEFAULT_VIEWPORT,
-    _camera.viewport
-  );
+  const { fov, aspect, near, far } = {
+    ...DEFAULT_VIEWPORT,
+    ..._camera.viewport,
+  };
 
   if (_camera.type === Camera.ORTHO) {
     return [
@@ -81,26 +96,25 @@ const computeProjectionMatrix = (camera: Camera) => {
       0,
       1,
     ];
-  } else if ((_camera.type = Camera.PERSPECT)) {
-    return [
-      atan(fov / 2 / aspect),
-      0,
-      0,
-      0,
-      0,
-      atan(fov / 2),
-      0,
-      0,
-      0,
-      0,
-      (near + far) / (near - far),
-      (-2 * near * far) / (near - far),
-      0,
-      0,
-      1,
-      0,
-    ];
   }
+  return [
+    atan(fov / 2 / aspect),
+    0,
+    0,
+    0,
+    0,
+    atan(fov / 2),
+    0,
+    0,
+    0,
+    0,
+    (near + far) / (near - far),
+    (-2 * near * far) / (near - far),
+    0,
+    0,
+    1,
+    0,
+  ];
 };
 
 const cross = (vec1: Vector3, vec2: Vector3): Vector3 => [
@@ -131,4 +145,9 @@ const normalize = (v: Vector3): Vector3 => {
 
 const dToRad = (degree: number) => (PI * degree) / 180;
 
-export { computeModelMatrix, computeViewMatrix, computeProjectionMatrix };
+export {
+  computeModelMatrixs,
+  computeViewMatrix,
+  computeProjectionMatrix,
+  computeMatrixs,
+};

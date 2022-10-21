@@ -4,6 +4,7 @@ type Tuple<TItem, TLength extends number> = [TItem, ...TItem[]] & {
 
 export type Vector3 = Tuple<number, 3>;
 export type Matrix4 = Tuple<number, 16>;
+export type Color = Tuple<number, 4>;
 
 export type CameraOption = {
   type?: number; //相机类型：透视/正交
@@ -24,4 +25,9 @@ export type ModelTransformOption = {
   translate?: Vector3;
   rotate?: Vector3;
   scale?: Vector3;
+};
+
+export type Mesh = {
+  points: number[];
+  indices: number[];
 };
