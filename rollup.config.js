@@ -11,7 +11,7 @@ export default [
     plugins: [
       // 本地服务器
       serve({
-        open: false, // 自动打开页面
+        open: true, // 自动打开页面
         port: 8000,
         openPage: "/test/index.html", // 打开的页面
         contentBase: "",
