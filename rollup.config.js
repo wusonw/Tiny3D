@@ -1,9 +1,11 @@
 // rollup.config.js
 import serve from "rollup-plugin-serve";
+import typescript from "@rollup/plugin-typescript";
+import livereload from "rollup-plugin-livereload";
 
 export default [
   {
-    input: "./dist/index.js",
+    input: "src/index.ts",
     output: {
       file: "./build/bundle.js",
       format: "es",
@@ -16,6 +18,8 @@ export default [
         openPage: "/test/index.html", // 打开的页面
         contentBase: "",
       }),
+      typescript(),
+      livereload("build/bundle.js"),
     ],
   },
 ];
