@@ -3,7 +3,7 @@ const canvas = document.querySelector("#canvas1");
 canvas.width = 500;
 canvas.height = 500;
 const gl = canvas.getContext("webgl2");
-if (!gl) console.error(`WebGL is not aviable`);
+if (!gl) console.error(`WebGL is not available`);
 
 // 定点着色器代码
 const VERTEX_SHADER_SOURCE = `#version 300 es
@@ -19,7 +19,7 @@ const VERTEX_SHADER_SOURCE = `#version 300 es
     `;
 
 // 片元着色器代码
-const FRAMENT_SHADER_SOURCE = `#version 300 es
+const FRAGMENT_SHADER_SOURCE = `#version 300 es
     precision highp float;
     out vec4 outColor;
     void main() {
@@ -44,7 +44,7 @@ const vertexShader = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER_SOURCE);
 const fragmentShader = createShader(
   gl,
   gl.FRAGMENT_SHADER,
-  FRAMENT_SHADER_SOURCE
+  FRAGMENT_SHADER_SOURCE
 );
 
 //   链接这两个着色器成一个程序(program)
@@ -218,5 +218,5 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 gl.enableVertexAttribArray(positionAttributeLocation);
 
 gl.drawArrays(gl.TRIANGLES, 0, 6);
-// gl.drawElements(gl.TRANGLES, 3, gl.UNSIGNED_SHORT, 0);
-// gl.drawArrays(gl.TRANGLES, 0, 2);
+// gl.drawElements(gl.TRIANGLES, 3, gl.UNSIGNED_SHORT, 0);
+// gl.drawArrays(gl.TRIANGLES, 0, 2);

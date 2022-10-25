@@ -1,4 +1,5 @@
 import {
+  CameraType,
   OrthoCameraViewport,
   PerspectiveCameraViewport,
   Point,
@@ -8,14 +9,11 @@ import {
 export { createCamera, Camera, PerspectiveCamera, OrthoCamera };
 
 const createCamera = (type?: number) => {
-  if (type === Camera.ORTHO) return new OrthoCamera();
+  if (type === CameraType.ORTHO) return new OrthoCamera();
   return new PerspectiveCamera();
 };
 
 class Camera {
-  static PERSPECTIVE = 0;
-  static ORTHO = 1;
-
   position: Point;
   focus: Point;
   up: Vector;

@@ -7,6 +7,11 @@ export type Point = Tuple<number, 3>;
 export type Matrix = Tuple<number, 16>;
 export type Color = Tuple<number, 4>;
 
+export enum CameraType {
+  PERSPECT,
+  ORTHO,
+}
+
 export type GeometryTransform = {
   translate: Vector;
   rotate: Vector;

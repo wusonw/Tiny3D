@@ -23,7 +23,7 @@ export class WebGLBox {
     this.program = createProgram(
       gl,
       VERTEX_SHADER_SOURCE,
-      FRAMENT_SHADER_SOURCE
+      FRAGMENT_SHADER_SOURCE
     );
     gl.useProgram(this.program);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -34,8 +34,8 @@ export class WebGLBox {
   }
 
   // TODO: 后续重构此部分代码
-  draw(geometrys: Geometry[], camera: Camera) {
-    geometrys.forEach((geo) => {
+  draw(geometries: Geometry[], camera: Camera) {
+    geometries.forEach((geo) => {
       const { T, Rx, Ry, Rz, S } = computeModelMatrix(geo);
       const view = computeViewMatrix(camera);
       const projection = computeProjectionMatrix(camera);
@@ -184,7 +184,7 @@ const VERTEX_SHADER_SOURCE = `#version 300 es
   `;
 
 // 片元着色器代码
-const FRAMENT_SHADER_SOURCE = `#version 300 es 
+const FRAGMENT_SHADER_SOURCE = `#version 300 es 
 
   precision highp float;
 
