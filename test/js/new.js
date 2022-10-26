@@ -26,9 +26,10 @@ import {
 
 const canvas = document.getElementById("canvas");
 const box = new WebGLBox(canvas, 500, 500);
-const geo = new Geometry().setMesh([
-  0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0.5, -0.5, 0,
-]);
+const geo = new Geometry().setMesh({
+  vertex: [0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -0.5, 0],
+  faces: [0, 1, 2, 1, 2, 3],
+});
 const camera = createCamera(Camera.PERSPECTIVE)
   .locate(0, 0, 5)
   .lookAt(0, 0, 0)

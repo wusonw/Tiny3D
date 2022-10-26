@@ -1,10 +1,13 @@
-import { GeometryTransform, Point, Vector } from "./type";
+import { GeometryTransform, Mesh, Point, Vector } from "./type";
 
 export class Geometry {
-  mesh: number[];
+  mesh: Mesh;
   transform: GeometryTransform;
   constructor() {
-    this.mesh = [];
+    this.mesh = {
+      vertex: [],
+      faces: [],
+    };
     this.transform = {
       translate: [0, 0, 0],
       rotate: [0, 0, 0],
@@ -12,8 +15,8 @@ export class Geometry {
     };
   }
 
-  setMesh(mesh: number[]) {
-    this.mesh = [...mesh];
+  setMesh(mesh: Mesh) {
+    this.mesh = { ...mesh };
     return this;
   }
 }

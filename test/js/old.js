@@ -178,6 +178,10 @@ const uniformLocation2 = gl.getUniformLocation(program, "u_test2");
 gl.uniformMatrix4fv(uniformLocation1, false, new Float32Array(mat4_1));
 gl.uniformMatrix4fv(uniformLocation2, false, new Float32Array(mat4_2));
 // gl.uniformMatrix4fv(uniformLocation3, false, new Float32Array(mat4_3));
+//首先，我需要创建属性状态集合：顶点数组对象(Vertex Array Object)
+const vao = gl.createVertexArray();
+//为了使所有属性的设置能够应用到WebGL属性状态集，我们需要绑定这个顶点数组到WebGL
+gl.bindVertexArray(vao);
 
 // 在GPU上已经创建了一个GLSL程序后，我们还需要提供数据给它
 const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
@@ -185,14 +189,15 @@ const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
 
 // 创建 绑定 缓冲区
 const positionBuffer = gl.createBuffer();
-// const indexBuffer = gl.createBuffer();
+const indexBuffer = gl.createBuffer();
 
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-// gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 // 向缓冲区设置数据
 //gl.STATIC_DRAW 告诉WebGL我们不太可能去改变数据的值。
-const positions = [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0.5, -0.5, 0];
+const positions = [0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -0.5, 0];
+const index = [0, 1, 2, 1, 2, 3];
 
 const size = 3; // 3 components per iteration
 const type = gl.FLOAT; // the data is 32bit floats
@@ -208,15 +213,15 @@ gl.vertexAttribPointer(
   off_set
 );
 
-//首先，我需要创建属性状态集合：顶点数组对象(Vertex Array Object)
-// const vao = gl.createVertexArray();
-// //为了使所有属性的设置能够应用到WebGL属性状态集，我们需要绑定这个顶点数组到WebGL
-// gl.bindVertexArray(vao);
-
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(index), gl.STATIC_DRAW);
 //然后，我们还需要启用属性。如果没有开启这个属性，这个属性值会是一个常量
 gl.enableVertexAttribArray(positionAttributeLocation);
 
-gl.drawArrays(gl.TRIANGLES, 0, 6);
+gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+// gl.drawArrays(gl.TRIANGLES, 0, 6);
 // gl.drawElements(gl.TRIANGLES, 3, gl.UNSIGNED_SHORT, 0);
 // gl.drawArrays(gl.TRIANGLES, 0, 2);
+
+gl.bindVertexArray(vao);
+gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);

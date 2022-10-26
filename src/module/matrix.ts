@@ -10,11 +10,11 @@ export { computeModelMatrix, computeViewMatrix, computeProjectionMatrix };
 const computeModelMatrix = (geometry: Geometry) => {
   const { translate, rotate, scale } = geometry.transform;
   return {
-    T: T(translate[0], translate[1], translate[2]),
-    Rx: Rx(rotate[0]),
-    Ry: Ry(rotate[1]),
-    Rz: Rz(rotate[2]),
-    S: S(scale[0], scale[1], scale[2]),
+    m_T: T(translate[0], translate[1], translate[2]),
+    m_Rx: Rx(rotate[0]),
+    m_Ry: Ry(rotate[1]),
+    m_Rz: Rz(rotate[2]),
+    m_S: S(scale[0], scale[1], scale[2]),
   };
 };
 

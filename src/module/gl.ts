@@ -5,11 +5,13 @@ import {
   computeProjectionMatrix,
   computeViewMatrix,
 } from "./matrix";
+import { Mesh } from "./type";
 
 export class WebGLBox {
   canvas: HTMLCanvasElement;
   gl: WebGL2RenderingContext;
   program: WebGLProgram;
+  vaoMap: WeakMap<Mesh, WebGLVertexArrayObject>;
 
   constructor(canvas: HTMLCanvasElement, width?: number, height?: number) {
     this.canvas = canvas;
@@ -25,6 +27,7 @@ export class WebGLBox {
       VERTEX_SHADER_SOURCE,
       FRAGMENT_SHADER_SOURCE
     );
+    this.vaoMap = new WeakMap();
     gl.useProgram(this.program);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.clearColor(0, 0, 0, 0);
@@ -33,82 +36,70 @@ export class WebGLBox {
     gl.enable(gl.CULL_FACE);
   }
 
-  // TODO: 后续重构此部分代码
+  setMatrix = (geo: Geometry, camera: Camera) => {
+    const modelMatrix = computeModelMatrix(geo);
+    const viewMatrix = computeViewMatrix(camera);
+    const projectionMatrix = computeProjectionMatrix(camera);
+    const matrixEntries = Object.entries(
+      Object.assign(modelMatrix, {
+        m_view: viewMatrix,
+        m_projection: projectionMatrix,
+      })
+    );
+    matrixEntries.forEach(([name, matrix]) => {
+      const location = this.gl.getUniformLocation(this.program, name);
+      this.gl.uniformMatrix4fv(location, false, new Float32Array(matrix));
+    });
+  };
+
+  setPosition(geo: Geometry) {
+    // TODO: need connect vaoMap
+    const vao = this.gl.createVertexArray();
+    this.gl.bindVertexArray(vao);
+
+    const positionLocation = this.gl.getAttribLocation(
+      this.program,
+      "a_position"
+    );
+    const vertexBuffer = this.gl.createBuffer();
+    const facesBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexBuffer);
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, facesBuffer);
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      new Float32Array(geo.mesh.vertex),
+      this.gl.STATIC_DRAW
+    );
+    this.gl.bufferData(
+      this.gl.ELEMENT_ARRAY_BUFFER,
+      new Uint16Array(geo.mesh.faces),
+      this.gl.STATIC_DRAW
+    );
+    this.gl.vertexAttribPointer(
+      positionLocation,
+      3,
+      this.gl.FLOAT,
+      false,
+      0,
+      0
+    );
+    this.gl.enableVertexAttribArray(positionLocation);
+  }
+
   draw(geometries: Geometry[], camera: Camera) {
     geometries.forEach((geo) => {
-      const { T, Rx, Ry, Rz, S } = computeModelMatrix(geo);
-      const view = computeViewMatrix(camera);
-      const projection = computeProjectionMatrix(camera);
-      //   const { attribLocations, uniformLocations } = getProgramLocations(
-      //     this.gl,
-      //     this.program
-      //   );
+      this.setMatrix(geo, camera);
+      this.setPosition(geo);
 
-      const uT = this.gl.getUniformLocation(this.program, "u_T");
-      const uRx = this.gl.getUniformLocation(this.program, "u_Rx");
-      const uRy = this.gl.getUniformLocation(this.program, "u_Ry");
-      const uRz = this.gl.getUniformLocation(this.program, "u_Rz");
-      const uS = this.gl.getUniformLocation(this.program, "u_S");
-      const uView = this.gl.getUniformLocation(this.program, "u_view");
-      const uProjection = this.gl.getUniformLocation(
-        this.program,
-        "u_projection"
+      this.gl.drawElements(
+        this.gl.TRIANGLES,
+        geo.mesh.faces.length,
+        this.gl.UNSIGNED_SHORT,
+        0
       );
-      this.gl.uniformMatrix4fv(uT, false, new Float32Array(T));
-      this.gl.uniformMatrix4fv(uRx, false, new Float32Array(Rx));
-      this.gl.uniformMatrix4fv(uRy, false, new Float32Array(Ry));
-      this.gl.uniformMatrix4fv(uRz, false, new Float32Array(Rz));
-      this.gl.uniformMatrix4fv(uS, false, new Float32Array(S));
-      this.gl.uniformMatrix4fv(uView, false, new Float32Array(view));
-      this.gl.uniformMatrix4fv(
-        uProjection,
-        false,
-        new Float32Array(projection)
-      );
-
-      const aPosition = this.gl.getAttribLocation(this.program, "a_position");
-      const positionBuffer = this.gl.createBuffer();
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer);
-      this.gl.bufferData(
-        this.gl.ARRAY_BUFFER,
-        new Float32Array(geo.mesh),
-        this.gl.STATIC_DRAW
-      );
-      this.gl.vertexAttribPointer(aPosition, 3, this.gl.FLOAT, false, 0, 0);
-      this.gl.enableVertexAttribArray(aPosition);
-
-      this.gl.drawArrays(this.gl.TRIANGLES, 0, Math.floor(geo.mesh.length / 3));
     });
   }
 }
-
-// const getProgramLocations = (
-//   gl: WebGL2RenderingContext,
-//   program: WebGLProgram
-// ) => {
-//   const getLocationNames = (reg: RegExp) => [
-//     ...new Set(VERTEX_SHADER_SOURCE.match(reg) || []),
-//   ];
-
-//   const getLocations = (names: string[]) => {
-//     const entries = names.map((name) => {
-//       const location =
-//         name[0] === "a"
-//           ? gl.getAttribLocation(program, name)
-//           : gl.getUniformLocation(program, name);
-//       return [`${name.slice(2)}`, location];
-//     });
-//     return Object.fromEntries(entries);
-//   };
-
-//   const attribNames = getLocationNames(new RegExp(/a_[a-zA-Z]+/g));
-//   const uniformNames = getLocationNames(new RegExp(/u_[a-zA-Z]+/g));
-
-//   return {
-//     attribLocations: getLocations(attribNames),
-//     uniformLocations: getLocations(uniformNames),
-//   };
-// };
 
 // 创建应用程序
 const createProgram = (
@@ -169,17 +160,17 @@ const VERTEX_SHADER_SOURCE = `#version 300 es
 
   in vec3 a_position;
 
-  uniform mat4 u_T;
-  uniform mat4 u_Rz;
-  uniform mat4 u_Ry;
-  uniform mat4 u_Rx;
-  uniform mat4 u_S;
-  uniform mat4 u_view;
-  uniform mat4 u_projection;
+  uniform mat4 m_T;
+  uniform mat4 m_Rz;
+  uniform mat4 m_Ry;
+  uniform mat4 m_Rx;
+  uniform mat4 m_S;
+  uniform mat4 m_view;
+  uniform mat4 m_projection;
 
   void main(void) {
-    mat4 modelMatrix = u_T * u_Rz * u_Ry * u_Rx * u_S;
-    gl_Position = u_projection * u_view * modelMatrix * vec4(a_position, 1.0);
+    mat4 modelMatrix = m_T * m_Rz * m_Ry * m_Rx * m_S;
+    gl_Position = m_projection * m_view * modelMatrix * vec4(a_position, 1.0);
   }
   `;
 
