@@ -1,5 +1,6 @@
 import { Camera } from "./camera";
 import { Geometry } from "./geometry";
+import { normalize } from "./math";
 import {
   computeModelMatrix,
   computeProjectionMatrix,
@@ -36,7 +37,7 @@ export class WebGLBox {
     gl.enable(gl.CULL_FACE);
   }
 
-  setMatrix = (geo: Geometry, camera: Camera) => {
+  setTransform = (geo: Geometry, camera: Camera) => {
     const modelMatrix = computeModelMatrix(geo);
     const viewMatrix = computeViewMatrix(camera);
     const projectionMatrix = computeProjectionMatrix(camera);
@@ -86,10 +87,54 @@ export class WebGLBox {
     this.gl.enableVertexAttribArray(positionLocation);
   }
 
+  setLight() {
+    const lightColorLocation = this.gl.getUniformLocation(
+      this.program,
+      "l_color"
+    );
+    const lightDirectionLocation = this.gl.getUniformLocation(
+      this.program,
+      "l_direction"
+    );
+
+    this.gl.uniform3f(lightColorLocation, 0.8, 0.8, 0.0);
+    this.gl.uniform3fv(
+      lightDirectionLocation,
+      new Float32Array(normalize([0.5, 3, 4]))
+    );
+  }
+
+  setNormals() {
+    const normalLocation = this.gl.getAttribLocation(this.program, "a_normal");
+    const normals = [
+      [0, 0, 1],
+      [1, 0, 0],
+      [-1, 0, 0],
+      [0, 0, -1],
+      [0, -1, 0],
+      [0, 1, 0],
+    ];
+    const normalData: number[] = [];
+    normals
+      .map((n) => [...n, ...n, ...n, ...n, ...n, ...n])
+      .forEach((v) => normalData.push(...v));
+    const normalBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, normalBuffer);
+    this.gl.enableVertexAttribArray(normalLocation);
+    this.gl.vertexAttribPointer(normalLocation, 3, this.gl.FLOAT, false, 0, 0);
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      new Float32Array(normalData),
+      this.gl.STATIC_DRAW
+    );
+  }
+
   draw(geometries: Geometry[], camera: Camera) {
     geometries.forEach((geo) => {
-      this.setMatrix(geo, camera);
+      this.setTransform(geo, camera);
       this.setPosition(geo);
+      this.setLight();
+      this.setNormals();
 
       this.gl.drawElements(
         this.gl.TRIANGLES,
@@ -159,6 +204,11 @@ const createShader = (
 const VERTEX_SHADER_SOURCE = `#version 300 es
 
   in vec3 a_position;
+  // in vec4 a_color;
+  in vec3 a_normal;
+
+  uniform vec3 l_color;
+  uniform vec3 l_direction;
 
   uniform mat4 m_T;
   uniform mat4 m_Rz;
@@ -168,9 +218,17 @@ const VERTEX_SHADER_SOURCE = `#version 300 es
   uniform mat4 m_view;
   uniform mat4 m_projection;
 
+  out vec4 v_color;
+
   void main(void) {
     mat4 modelMatrix = m_T * m_Rz * m_Ry * m_Rx * m_S;
     gl_Position = m_projection * m_view * modelMatrix * vec4(a_position, 1.0);
+
+    vec4 a_color = vec4(1.0,0,0,1);
+    vec3 normal = normalize(a_normal);
+    highp float dotResult = max(dot(l_direction,normal),0.0);
+    vec3 diffuse = l_color * a_color.rgb * dotResult;
+    v_color = vec4(diffuse,a_color.a);
   }
   `;
 
@@ -179,9 +237,10 @@ const FRAGMENT_SHADER_SOURCE = `#version 300 es
 
   precision highp float;
 
+  in vec4 v_color;
   out vec4 outColor;
-
+  
   void main(void) {
-    outColor = vec4(1,0,0,1);
+    outColor = v_color;
   }
   `;

@@ -1,1 +1,1 @@
-export default class Light {}
+export class Light {}

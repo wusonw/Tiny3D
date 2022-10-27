@@ -70,7 +70,7 @@ gl.useProgram(program);
 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 gl.clearColor(0, 0, 0, 0);
 gl.enable(gl.DEPTH_TEST);
-gl.enable(gl.CULL_FACE);
+// gl.enable(gl.CULL_FACE);
 // 在绘制前清除颜色缓冲区以及深度缓冲区
 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -79,8 +79,8 @@ const R = (angle) => {
   const c = Math.cos((angle * Math.PI) / 180);
   const s = Math.sin((angle * Math.PI) / 180);
   // return [1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1]; //Rx
-  return [c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1]; //Ry
-  // return [c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]; //Rz
+  // return [c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1]; //Ry
+  return [c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]; //Rz
 };
 const T = (tx, ty, tz) => [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tx, ty, tz, 1];
 
@@ -164,12 +164,12 @@ const viewMatrix = (position, focus, up) => {
 
 // const mat4_1 = S(1, 0.5, 1);
 const mat4_0 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-const mat4_2 = R(30);
-const mat4_1 = S(1, 0.3, 1);
+const mat4_2 = R(90);
+// const mat4_1 = S(1, 0.3, 1);
 // const mat4_1 = T(-0.5, 0.5, 0.5);
 // const mat4_1 = viewMatrix([0, 0, 5], [0, 0, 0], [1, 1, 0]);
 // const mat4_2 = perspectiveMatrix(75, 1, 0.01, 200);
-// const mat4_1 = mat4_0;
+const mat4_1 = mat4_0;
 // const mat4_2 = mat4_0;
 
 const uniformLocation1 = gl.getUniformLocation(program, "u_test1");
@@ -178,7 +178,7 @@ const uniformLocation2 = gl.getUniformLocation(program, "u_test2");
 gl.uniformMatrix4fv(uniformLocation1, false, new Float32Array(mat4_1));
 gl.uniformMatrix4fv(uniformLocation2, false, new Float32Array(mat4_2));
 // gl.uniformMatrix4fv(uniformLocation3, false, new Float32Array(mat4_3));
-//首先，我需要创建属性状态集合：顶点数组对象(Vertex Array Object)
+// 首先，我需要创建属性状态集合：顶点数组对象(Vertex Array Object)
 const vao = gl.createVertexArray();
 //为了使所有属性的设置能够应用到WebGL属性状态集，我们需要绑定这个顶点数组到WebGL
 gl.bindVertexArray(vao);
@@ -196,9 +196,15 @@ gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 // 向缓冲区设置数据
 //gl.STATIC_DRAW 告诉WebGL我们不太可能去改变数据的值。
-const positions = [0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -0.5, 0];
-const index = [0, 1, 2, 1, 2, 3];
-
+const positions = [
+  0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5,
+  -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5,
+];
+// const index = [
+//   0, 1, 2, 0, 2, 3, 0, 3, 7, 0, 7, 4, 1, 6, 2, 1, 5, 6, 5, 4, 6, 4, 7, 6, 3, 2,
+//   6, 7, 3, 6, 0, 4, 5, 0, 5, 1,
+// ];
+const index = [0, 1, 3, 0, 4, 3, 0, 4, 1, 3, 1, 4];
 const size = 3; // 3 components per iteration
 const type = gl.FLOAT; // the data is 32bit floats
 const normalize1 = false; // don't normalize the data
