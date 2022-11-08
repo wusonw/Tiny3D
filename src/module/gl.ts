@@ -55,17 +55,21 @@ export class WebGLBox {
 
   setPosition(geo: Geometry) {
     // TODO: need connect vaoMap
-    const vao = this.gl.createVertexArray();
-    this.gl.bindVertexArray(vao);
+    // const vao = this.gl.createVertexArray();
+    // this.gl.bindVertexArray(vao);
 
     const positionLocation = this.gl.getAttribLocation(
       this.program,
       "a_position"
     );
-    const vertexBuffer = this.gl.createBuffer();
-    const facesBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexBuffer);
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, facesBuffer);
+    // const positionData: number[] = [];
+    // geo.mesh.faces.forEach((v) =>
+    //   positionData.push(...geo.mesh.vertex.slice(v * 3, v * 3 + 3))
+    // );
+    const positionBuffer = this.gl.createBuffer();
+    const indexBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer);
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     this.gl.bufferData(
       this.gl.ARRAY_BUFFER,
       new Float32Array(geo.mesh.vertex),
@@ -133,9 +137,10 @@ export class WebGLBox {
     geometries.forEach((geo) => {
       this.setTransform(geo, camera);
       this.setPosition(geo);
-      this.setLight();
-      this.setNormals();
+      // this.setLight();
+      // this.setNormals();
 
+      // this.gl.drawArrays(this.gl.TRIANGLES, 0, geo.mesh.faces.length);
       this.gl.drawElements(
         this.gl.TRIANGLES,
         geo.mesh.faces.length,
@@ -205,7 +210,7 @@ const VERTEX_SHADER_SOURCE = `#version 300 es
 
   in vec3 a_position;
   // in vec4 a_color;
-  in vec3 a_normal;
+  // in vec3 a_normal;
 
   uniform vec3 l_color;
   uniform vec3 l_direction;
@@ -225,10 +230,11 @@ const VERTEX_SHADER_SOURCE = `#version 300 es
     gl_Position = m_projection * m_view * modelMatrix * vec4(a_position, 1.0);
 
     vec4 a_color = vec4(1.0,0,0,1);
-    vec3 normal = normalize(a_normal);
-    highp float dotResult = max(dot(l_direction,normal),0.0);
-    vec3 diffuse = l_color * a_color.rgb * dotResult;
-    v_color = vec4(diffuse,a_color.a);
+    // vec3 normal = normalize(a_normal);
+    // highp float dotResult = max(dot(l_direction,normal),0.0);
+    // vec3 diffuse = l_color * a_color.rgb * dotResult;
+    // v_color = vec4(diffuse,a_color.a);
+    v_color = vec4(1,0,0,1);
   }
   `;
 

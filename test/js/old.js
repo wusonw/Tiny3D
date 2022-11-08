@@ -79,8 +79,8 @@ const R = (angle) => {
   const c = Math.cos((angle * Math.PI) / 180);
   const s = Math.sin((angle * Math.PI) / 180);
   // return [1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1]; //Rx
-  // return [c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1]; //Ry
-  return [c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]; //Rz
+  return [c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1]; //Ry
+  // return [c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]; //Rz
 };
 const T = (tx, ty, tz) => [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tx, ty, tz, 1];
 
@@ -164,7 +164,7 @@ const viewMatrix = (position, focus, up) => {
 
 // const mat4_1 = S(1, 0.5, 1);
 const mat4_0 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-const mat4_2 = R(90);
+const mat4_2 = R(100);
 // const mat4_1 = S(1, 0.3, 1);
 // const mat4_1 = T(-0.5, 0.5, 0.5);
 // const mat4_1 = viewMatrix([0, 0, 5], [0, 0, 0], [1, 1, 0]);
@@ -179,9 +179,9 @@ gl.uniformMatrix4fv(uniformLocation1, false, new Float32Array(mat4_1));
 gl.uniformMatrix4fv(uniformLocation2, false, new Float32Array(mat4_2));
 // gl.uniformMatrix4fv(uniformLocation3, false, new Float32Array(mat4_3));
 // 首先，我需要创建属性状态集合：顶点数组对象(Vertex Array Object)
-const vao = gl.createVertexArray();
+// const vao = gl.createVertexArray();
 //为了使所有属性的设置能够应用到WebGL属性状态集，我们需要绑定这个顶点数组到WebGL
-gl.bindVertexArray(vao);
+// gl.bindVertexArray(vao);
 
 // 在GPU上已经创建了一个GLSL程序后，我们还需要提供数据给它
 const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
@@ -189,10 +189,10 @@ const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
 
 // 创建 绑定 缓冲区
 const positionBuffer = gl.createBuffer();
-const indexBuffer = gl.createBuffer();
+// const indexBuffer = gl.createBuffer();
 
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+// gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 // 向缓冲区设置数据
 //gl.STATIC_DRAW 告诉WebGL我们不太可能去改变数据的值。
@@ -200,11 +200,14 @@ const positions = [
   0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5,
   -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5,
 ];
-// const index = [
-//   0, 1, 2, 0, 2, 3, 0, 3, 7, 0, 7, 4, 1, 6, 2, 1, 5, 6, 5, 4, 6, 4, 7, 6, 3, 2,
-//   6, 7, 3, 6, 0, 4, 5, 0, 5, 1,
-// ];
-const index = [0, 1, 3, 0, 4, 3, 0, 4, 1, 3, 1, 4];
+const index = [
+  0, 1, 2, 0, 2, 3, 0, 3, 7, 0, 7, 4, 1, 6, 2, 1, 5, 6, 5, 4, 6, 4, 7, 6, 3, 2,
+  6, 7, 3, 6, 0, 4, 5, 0, 5, 1,
+];
+
+let positionData = [];
+index.forEach((v) => positionData.push(...positions.slice(v * 3, v * 3 + 3)));
+
 const size = 3; // 3 components per iteration
 const type = gl.FLOAT; // the data is 32bit floats
 const normalize1 = false; // don't normalize the data
@@ -219,15 +222,17 @@ gl.vertexAttribPointer(
   off_set
 );
 
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(index), gl.STATIC_DRAW);
+// gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+// gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(index), gl.STATIC_DRAW);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionData), gl.STATIC_DRAW);
 //然后，我们还需要启用属性。如果没有开启这个属性，这个属性值会是一个常量
 gl.enableVertexAttribArray(positionAttributeLocation);
 
-gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+// gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 // gl.drawArrays(gl.TRIANGLES, 0, 6);
 // gl.drawElements(gl.TRIANGLES, 3, gl.UNSIGNED_SHORT, 0);
 // gl.drawArrays(gl.TRIANGLES, 0, 2);
 
-gl.bindVertexArray(vao);
-gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+// gl.bindVertexArray(vao);
+// gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+gl.drawArrays(gl.TRIANGLES, 0, 36);
